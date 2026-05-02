@@ -5,7 +5,6 @@
 - **Roll No:** 2024EB01371
 - **Subject:** Building Database Applications
 - **GitHub:** https://github.com/kishlayamishra02/BDA2
-- **Detailed README:** https://github.com/kishlayamishra02/BDA2/blob/main/README.md
 
 ---
 
