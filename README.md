@@ -3,7 +3,8 @@
 
 **Name:** Kishlaya Mishra  
 **Roll No:** 2024EB01371  
-**Subject:** Building Database Applications  
+**Subject:** Building Database Applications
+**Detailed PDF:** https://github.com/kishlayamishra02/BDA2/blob/main/README.md
 **GitHub:** https://github.com/kishlayamishra02/BDA2
 
 ---
