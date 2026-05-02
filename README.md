@@ -97,31 +97,136 @@ student-course-management/
 
 ---
 
+## 4.1 Maven Dependencies (pom.xml)
+
+Below are the key dependencies I used in `pom.xml`:
+
+```xml
+<!-- Spring Boot Web MVC -->
+<dependency>
+    <groupId>org.springframework.boot</groupId>
+    <artifactId>spring-boot-starter-web</artifactId>
+</dependency>
+
+<!-- Spring Data JPA -->
+<dependency>
+    <groupId>org.springframework.boot</groupId>
+    <artifactId>spring-boot-starter-data-jpa</artifactId>
+</dependency>
+
+<!-- Bean Validation -->
+<dependency>
+    <groupId>org.springframework.boot</groupId>
+    <artifactId>spring-boot-starter-validation</artifactId>
+</dependency>
+
+<!-- MySQL Driver -->
+<dependency>
+    <groupId>com.mysql</groupId>
+    <artifactId>mysql-connector-j</artifactId>
+    <scope>runtime</scope>
+</dependency>
+
+<!-- H2 (for unit tests only) -->
+<dependency>
+    <groupId>com.h2database</groupId>
+    <artifactId>h2</artifactId>
+    <scope>test</scope>
+</dependency>
+
+<!-- JSP support (Jasper engine) -->
+<dependency>
+    <groupId>org.apache.tomcat.embed</groupId>
+    <artifactId>tomcat-embed-jasper</artifactId>
+    <scope>provided</scope>
+</dependency>
+
+<!-- JSTL (Jakarta namespace) -->
+<dependency>
+    <groupId>jakarta.servlet.jsp.jstl</groupId>
+    <artifactId>jakarta.servlet.jsp.jstl-api</artifactId>
+    <version>3.0.0</version>
+</dependency>
+<dependency>
+    <groupId>org.glassfish.web</groupId>
+    <artifactId>jakarta.servlet.jsp.jstl</artifactId>
+    <version>3.0.1</version>
+</dependency>
+
+<!-- Lombok -->
+<dependency>
+    <groupId>org.projectlombok</groupId>
+    <artifactId>lombok</artifactId>
+    <optional>true</optional>
+</dependency>
+
+<!-- Testing -->
+<dependency>
+    <groupId>org.springframework.boot</groupId>
+    <artifactId>spring-boot-starter-test</artifactId>
+    <scope>test</scope>
+</dependency>
+```
+
+> **Note:** `tomcat-embed-jasper` is critical — without it, Spring Boot cannot render JSP files. The `jakarta.*` JSTL namespace (not `javax.*`) is required for Spring Boot 3.
+
+---
+
 ## 5. Implementation Details
 
 ### 5.1 Populate Database
 
-The `CommandLineRunner` bean in the main application class seeds 10 courses and 10 students on first startup (only if tables are empty).
+I implemented a `CommandLineRunner` bean inside the main application class. This runs automatically at startup and inserts 10 courses and 10 students, but **only if the tables are empty** — this prevents duplicate inserts on restarts.
 
 ```java
-@Bean
-public CommandLineRunner seedDatabase(StudentRepository studentRepo,
-                                       CourseRepository courseRepo) {
-    return args -> {
-        if (studentRepo.count() == 0 && courseRepo.count() == 0) {
-            Course c1 = courseRepo.save(new Course(null, "CS101",
-                "Introduction to Computer Science", "Computer Science", 3, null));
-            // ... 9 more courses
+@SpringBootApplication
+public class StudentCourseManagementApplication {
 
-            studentRepo.saveAll(List.of(
-                new Student(null, "Alice", "Johnson", "alice@uni.edu",
-                            "2001-03-15", "Computer Science", c1),
-                // ... 9 more students
-            ));
-        }
-    };
+    public static void main(String[] args) {
+        SpringApplication.run(StudentCourseManagementApplication.class, args);
+    }
+
+    @Bean
+    public CommandLineRunner seedDatabase(StudentRepository studentRepo,
+                                          CourseRepository courseRepo) {
+        return args -> {
+            if (studentRepo.count() == 0 && courseRepo.count() == 0) {
+
+                // ── 10 Courses ──
+                Course c1  = courseRepo.save(new Course(null, "CS101",  "Introduction to Computer Science", "Computer Science", 3, null));
+                Course c2  = courseRepo.save(new Course(null, "MATH201","Calculus II",                       "Mathematics",       4, null));
+                Course c3  = courseRepo.save(new Course(null, "PHY301", "Quantum Mechanics",                 "Physics",           3, null));
+                Course c4  = courseRepo.save(new Course(null, "ENG401", "Technical Writing",                 "English",           2, null));
+                Course c5  = courseRepo.save(new Course(null, "DS501",  "Data Structures & Algorithms",      "Computer Science",  4, null));
+                Course c6  = courseRepo.save(new Course(null, "AI601",  "Machine Learning Fundamentals",     "AI/ML",             3, null));
+                Course c7  = courseRepo.save(new Course(null, "DB701",  "Database Management Systems",       "Computer Science",  3, null));
+                Course c8  = courseRepo.save(new Course(null, "NET801", "Computer Networks",                 "Networking",        3, null));
+                Course c9  = courseRepo.save(new Course(null, "SEC901", "Cybersecurity Basics",              "Security",          3, null));
+                Course c10 = courseRepo.save(new Course(null, "WEB101", "Web Development",                  "Computer Science",  3, null));
+
+                // ── 10 Students ──
+                studentRepo.saveAll(List.of(
+                    new Student(null, "Alice",    "Johnson",  "alice@uni.edu",    "2001-03-15", "Computer Science", c1),
+                    new Student(null, "Bob",      "Smith",    "bob@uni.edu",      "2002-07-22", "Mathematics",      c2),
+                    new Student(null, "Carol",    "White",    "carol@uni.edu",    "2000-11-05", "Physics",          c3),
+                    new Student(null, "David",    "Brown",    "david@uni.edu",    "2001-06-18", "English",          c4),
+                    new Student(null, "Eva",      "Martinez", "eva@uni.edu",      "2003-01-30", "Computer Science", c5),
+                    new Student(null, "Frank",    "Lee",      "frank@uni.edu",    "2002-09-12", "AI/ML",            c6),
+                    new Student(null, "Grace",    "Kim",      "grace@uni.edu",    "2001-04-25", "Computer Science", c7),
+                    new Student(null, "Henry",    "Davis",    "henry@uni.edu",    "2000-12-08", "Networking",       c8),
+                    new Student(null, "Isabelle", "Wilson",   "isabelle@uni.edu", "2003-05-14", "Security",         c9),
+                    new Student(null, "Jack",     "Taylor",   "jack@uni.edu",     "2002-02-27", "Computer Science", c10)
+                ));
+
+                System.out.println("Database seeded: 10 courses + 10 students inserted.");
+            }
+        };
+    }
 }
 ```
+
+**How JPA creates the tables:**  
+`spring.jpa.hibernate.ddl-auto=update` tells Hibernate to automatically create or update the `courses` and `students` tables based on the entity class definitions. No manual SQL scripts are needed.
 
 **Sample Data (Courses table):**
 
@@ -374,6 +479,22 @@ public class StudentService {
 
 ### 5.5 Controller Layer
 
+#### HomeController.java
+
+This controller handles the root URL `/` and renders the dashboard home page.
+
+```java
+@Controller
+public class HomeController {
+
+    @GetMapping("/")
+    public String home(Model model) {
+        model.addAttribute("pageTitle", "Student Course Management System");
+        return "home";  // resolves to /WEB-INF/jsp/home.jsp
+    }
+}
+```
+
 #### CourseController.java
 
 ```java
@@ -520,6 +641,8 @@ public class StudentController {
 
 ### 5.6 View Layer (JSP)
 
+I created JSP pages for all Create, Read, and Update operations for both entities. I used the `jakarta.tags.core` JSTL taglib and Spring's `form` tag library for data binding.
+
 #### home.jsp – Dashboard
 
 ```jsp
@@ -586,6 +709,105 @@ public class StudentController {
 - `<c:forEach>` — JSTL to iterate over lists
 - `<c:if>` — JSTL for conditional rendering of alerts
 - `<form:*>` — Spring Form tags for data binding and validation errors
+
+#### course/list.jsp – Read Operation (Courses)
+
+```jsp
+<%@ page contentType="text/html;charset=UTF-8" language="java" %>
+<%@ taglib prefix="c" uri="jakarta.tags.core" %>
+
+<div class="page-header">
+  <h1 class="page-title">All Courses</h1>
+  <a href="${pageContext.request.contextPath}/courses/new" class="btn btn-primary">➕ Add Course</a>
+</div>
+
+<%-- Success/Error flash messages --%>
+<c:if test="${not empty successMsg}">
+  <div class="alert alert-success">✅ ${successMsg}</div>
+</c:if>
+<c:if test="${not empty errorMsg}">
+  <div class="alert alert-danger">❌ ${errorMsg}</div>
+</c:if>
+
+<table>
+  <thead>
+    <tr>
+      <th>#</th><th>Code</th><th>Course Name</th>
+      <th>Department</th><th>Credits</th><th>Actions</th>
+    </tr>
+  </thead>
+  <tbody>
+    <c:forEach var="c" items="${courses}" varStatus="st">
+    <tr>
+      <td>${st.count}</td>
+      <td><code>${c.courseCode}</code></td>
+      <td>${c.courseName}</td>
+      <td>${c.department}</td>
+      <td>${c.credits}</td>
+      <td>
+        <a href="${pageContext.request.contextPath}/courses/edit/${c.courseId}"
+           class="btn btn-warning">✏️ Edit</a>
+      </td>
+    </tr>
+    </c:forEach>
+  </tbody>
+</table>
+```
+
+#### course/form.jsp – Create & Update Form (Courses)
+
+This single JSP handles both **Add** (when `course.courseId` is null) and **Edit** (when it has an ID). The form `action` URL is set dynamically using `<c:choose>`.
+
+```jsp
+<%@ taglib prefix="c"    uri="jakarta.tags.core" %>
+<%@ taglib prefix="form" uri="http://www.springframework.org/tags/form" %>
+
+<%-- Dynamic action: save for new, update/{id} for existing --%>
+<c:set var="actionUrl">
+  <c:choose>
+    <c:when test="${course.courseId != null}">
+      ${pageContext.request.contextPath}/courses/update/${course.courseId}
+    </c:when>
+    <c:otherwise>${pageContext.request.contextPath}/courses/save</c:otherwise>
+  </c:choose>
+</c:set>
+
+<form:form method="post" action="${actionUrl}" modelAttribute="course">
+
+  <div class="form-row">
+    <div class="form-group">
+      <label class="form-label">Course Code</label>
+      <form:input path="courseCode" cssClass="form-control" placeholder="e.g. CS101"/>
+      <form:errors path="courseCode" cssClass="form-error"/>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Credits (1-6)</label>
+      <form:input path="credits" type="number" cssClass="form-control" min="1" max="6"/>
+      <form:errors path="credits" cssClass="form-error"/>
+    </div>
+  </div>
+
+  <div class="form-group">
+    <label class="form-label">Course Name</label>
+    <form:input path="courseName" cssClass="form-control" placeholder="e.g. Intro to CS"/>
+    <form:errors path="courseName" cssClass="form-error"/>
+  </div>
+
+  <div class="form-group">
+    <label class="form-label">Department</label>
+    <form:input path="department" cssClass="form-control" placeholder="e.g. Computer Science"/>
+    <form:errors path="department" cssClass="form-error"/>
+  </div>
+
+  <button type="submit" class="btn btn-primary">
+    <c:choose>
+      <c:when test="${course.courseId != null}">💾 Update Course</c:when>
+      <c:otherwise>✅ Add Course</c:otherwise>
+    </c:choose>
+  </button>
+
+</form:form>
+```
 
 #### CSS Design Highlights (style.css)
 
@@ -734,7 +956,7 @@ class ServiceTest {
 
 ```bash
 # 1. Clone the repository
-git clone https://github.com/[your-username]/student-course-management.git
+git clone https://github.com/kishlayamishra02/BDA2.git
 cd student-course-management
 
 # 2. Update DB credentials in src/main/resources/application.properties
